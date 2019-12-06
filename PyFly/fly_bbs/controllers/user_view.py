@@ -1,7 +1,7 @@
 import json
 from bson import ObjectId
 from datetime import datetime
-from flask import Blueprint
+from flask import Blueprint, render_template
 
 from ..extensions import mongo
 
@@ -37,3 +37,11 @@ def home():
     # cls 参数用于处理特殊类型的数据
     # ensure_ascii=False 使得 JSON 字符串是 UTF-8 编码
     return json.dumps(users, cls=MyEncoder, ensure_ascii=False)
+
+@user_view.route('/login')
+def login():
+    return render_template('user/login.html')
+
+@user_view.route('/register')
+def register():
+    return render_template('user/register.html')
