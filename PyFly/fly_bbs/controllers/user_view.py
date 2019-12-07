@@ -1,9 +1,12 @@
 import json
 from bson import ObjectId
 from datetime import datetime
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request, jsonify, url_for, session
+from flask import redirect
 
 from ..extensions import mongo
+from ..models import User
+from .. import utils
 
 
 # 创建蓝图，第一个参数为自定义，供前端使用，第二个参数为固定写法
@@ -38,9 +41,31 @@ def home():
     # ensure_ascii=False 使得 JSON 字符串是 UTF-8 编码
     return json.dumps(users, cls=MyEncoder, ensure_ascii=False)
 
-@user_view.route('/login')
+
+@user_view.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template('user/login.html')
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        user = mongo.db.users.find_one({'email': email})
+        vercode = request.form.get('vercode')   # 获取答案
+        try:
+            utils.verify_num(vercode)           # 验证答案
+        except Exception as e:
+            return '<h1>{}</h1>'.format(e), 404
+        if not user:
+            return jsonify({'status': 50102, 'msg': '用户不存在'})
+        if not User.validate_login(user['password'], password):
+            return jsonify({'status': 50000, 'msg': '密码错误'})
+        # 通过验证后，把用户名添加到 session
+        session['username'] = user['username']
+        # redirect 用于重定向到网站首页
+        # url_for 用于构造 URL ，参数为字符串：蓝图.视图函数
+        return redirect(url_for('bbs_index.index'))
+        return '<h1>登录成功</h1>'
+    ver_code = utils.gen_verify_num()
+    return render_template('user/login.html', ver_code=ver_code['question'])
+
 
 @user_view.route('/register')
 def register():
