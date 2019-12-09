@@ -18,7 +18,7 @@ def init():
         'certificate': '社区超级管理员',
         'vip': 5,
         'coin': 9999,
-        'avatar': '/static/images/avatar/1.png',
+        'avatar': '/static/images/avatar/1.jpg',
         'is_active': True,
         'created_at': datetime.utcnow()
     })

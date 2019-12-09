@@ -15,4 +15,4 @@ def gen_verify_num():
 # 验证码检验
 def verify_num(code):
     if code != session['ver_code']:
-        raise Exception('验证码错啦！')
+        raise Exception('答案错啦！')
