@@ -1,21 +1,46 @@
-from flask import Blueprint, render_template, jsonify, url_for
+from flask import Blueprint, render_template, jsonify, url_for, request
 from flask_login import current_user
 from bson import ObjectId
 from datetime import datetime
+from pymongo import DESCENDING
 
 from .. import code_msg
 from ..forms import PostForm
 from ..models import R, BaseResult
 from ..utils import gen_verify_num, verify_num
 from ..extensions import mongo
+from ..db_utils import get_page, find_one
 
 
 bbs_index = Blueprint('bbs_index', __name__, template_folder='templates')
 
 
 @bbs_index.route('/')
-def index():
-    return render_template('base.html')
+@bbs_index.route('/page/<int:pn>/size/<int:size>')
+@bbs_index.route('/page/<int:pn>')
+@bbs_index.route("/catalog/<ObjectId:catalog_id>")
+@bbs_index.route("/catalog/<ObjectId:catalog_id>/page/<int:pn>")
+@bbs_index.route("/catalog/<ObjectId:catalog_id>/page/<int:pn>/size/<int:size>")
+def index(pn=1, size=10, catalog_id=None):
+    sort_key = request.values.get('sort_key', '_id')
+    # 排序字段和升降序，DESCENDING 的值是 -1 ，表示降序
+    sort_by = (sort_key, DESCENDING)
+    post_type = request.values.get('type')
+    filter1 = {}
+    # 帖子状态分类：not_closed 未结/已结；is_cream 精华帖
+    if post_type == 'not_closed':
+        filter1['is_closed'] = {'$ne': True}
+    if post_type == 'is_closed':
+        filter1['is_closed'] = True
+    if post_type == 'is_cream':
+        filter1['is_cream'] = True
+    # 增加帖子类型
+    if catalog_id:
+        filter1['catalog_id'] = catalog_id
+    page = get_page('posts', pn=pn, filter1=filter1, size=size, sort_by=sort_by)
+    return render_template("post_list.html", is_index=catalog_id is None,
+            page=page, sort_key=sort_key, catalog_id=catalog_id,
+            post_type=post_type)
 
 
 @bbs_index.route('/add', methods=['GET', 'POST'])
@@ -85,3 +110,19 @@ def add(post_id=None):
             ver_code=ver_code['question'], is_add=(post_id is None), post=post,
             title=title)
     
+
+@bbs_index.route('/post/<ObjectId:post_id>/')
+@bbs_index.route('/post/<ObjectId:post_id>/page/<int:pn>/')
+def post_detail(post_id, pn=1):
+    '''帖子详情页的视图函数'''
+    post = mongo.db.posts.find_one_or_404({'_id': post_id})
+    # 当有人访问时，帖子浏览量 + 1
+    if post:
+        post['view_count'] = post.get('view_count', 0) + 1
+        mongo.db.posts.save(post)
+    post['user'] = find_one('users', {'_id': post['user_id']}) or {}
+    # 获取评论
+    page = get_page('comments', pn=pn, size=10, 
+            filter1={'post_id': post_id}, sort_by=('is_adopted', -1))
+    return render_template('jie/detail.html', post=post, title=post['title'],
+            page_name='jie', comment_page=page, catalog_id=post['catalog_id'])

@@ -1,7 +1,9 @@
 from werkzeug.security import check_password_hash
+from json import JSONEncoder
 
 
 class User:
+
     user = None
     is_active = False
     is_authenticated = True
@@ -51,7 +53,28 @@ class R(dict):
 
 
 class BaseResult(R):
+
     def __init__(self, status=0, msg='', data=None):
         self.put('status', status)
         self.put('msg', msg)
         self.put('data', data)
+
+
+class Page:
+    
+    def __init__(self, pn, size, sort_by=None, filter1=None, result=None, 
+            has_more=False, page_count=0, total=0):
+        self.pn = pn
+        self.size = size
+        self.sort_by = sort_by
+        self.filter1 = filter1
+        self.result = result
+        self.has_more = has_more
+        self.page_count = page_count
+        self.total = total
+
+    def __repr__(self):
+        # 此处只是简单地返回一个 JSON 字符串
+        # 使用 JSONEncoder().encode 等同于使用 json.dumps 
+        # 因为后者在源码中的实现也是调用了 JSONEncoder 类
+        return JSONEncoder().encode(self.__dict__)
