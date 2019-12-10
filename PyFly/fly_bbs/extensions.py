@@ -25,6 +25,10 @@ def user_load(user_id):
 
 
 def init_extensions(app):
+    # 初始化 app 的时候，会调用 app.config 的 MONGO_URI 属性
+    # MONGO_URI = 'mongodb://localhost:27017/pyfly'
+    # 以确定要连接的数据库名字 pyfly 、端口号 27017
+    # 并且给 mongo 定义一个 db 属性，其值就是数据库 pyfly
     mongo.init_app(app)
     # 调用 init_app 方法注册 app 
     # 此方法的主要作用就是将 login_manager 本身赋值给 app.login_manager 属性

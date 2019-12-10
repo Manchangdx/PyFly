@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField
+from wtforms import StringField, PasswordField, IntegerField
 from wtforms.validators import (DataRequired, Email, EqualTo, Length,
         InputRequired)
 
@@ -24,3 +24,14 @@ class LoginForm(FlaskForm):
     password = PasswordField(validators=[DataRequired('密码不能为空'),
             Length(3, 26, '密码长度为 3 ~ 26 个字符')])
     vercode = StringField(validators=[InputRequired('答案写错了')])
+
+
+class PostForm(FlaskForm):
+    '''帖子表单类'''
+
+    id = StringField()
+    title = StringField(validators=[DataRequired('帖子标题不能为空')])
+    content = StringField(validators=[DataRequired('帖子内容不能为空')])
+    catalog_id = StringField(validators=[DataRequired('帖子种类不能为空')])
+    reward = IntegerField(validators=[InputRequired('帖子悬赏不能不选')])
+    vercode = StringField(validators=[InputRequired('验证码不能为空')])

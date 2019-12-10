@@ -51,7 +51,7 @@ class R(dict):
 
 
 class BaseResult(R):
-    def __init__(self, code=0, msg='', data=None):
-        self.put('status', code)
+    def __init__(self, status=0, msg='', data=None):
+        self.put('status', status)
         self.put('msg', msg)
         self.put('data', data)
