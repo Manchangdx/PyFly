@@ -21,3 +21,37 @@ class User:
         # 数据库中的哈希密码和用户在页面上填写的密码
         # 如果验证密码一致则返回 True ，否则返回 False
         return check_password_hash(password_hash, password)
+
+
+class R(dict):
+    
+    @staticmethod
+    def ok(msg=None, data=None):
+        r = __class__()
+        r.put('status', 0)
+        r.put('msg', msg)
+        r.put('data', data)
+        return r
+
+    @staticmethod
+    def fail(status=404, msg=None):
+        r = __class__()
+        r.put('status', status)
+        r.put('msg', msg)
+        return r
+
+    def put(self, key, value):
+        self.__setitem__(key, value)
+
+    def get_status(self):
+        return self.get('status')
+
+    def get_msg(self):
+        return self.get('msg')
+
+
+class BaseResult(R):
+    def __init__(self, code=0, msg='', data=None):
+        self.put('status', code)
+        self.put('msg', msg)
+        self.put('data', data)

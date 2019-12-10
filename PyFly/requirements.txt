@@ -3,9 +3,11 @@ backcall==0.1.0
 Click==7.0
 decorator==4.4.1
 Flask==1.1.1
+Flask-Login==0.4.1
 Flask-PyMongo==2.3.0
 Flask-Script==2.0.6
 flask-shell-ipython==0.4.1
+Flask-WTF==0.14.2
 ipython==7.6.0
 ipython-genutils==0.2.0
 itsdangerous==1.1.0
@@ -23,3 +25,4 @@ six==1.13.0
 traitlets==4.3.3
 wcwidth==0.1.7
 Werkzeug==0.16.0
+WTForms==2.2.1
