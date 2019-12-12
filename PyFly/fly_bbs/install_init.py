@@ -1,4 +1,3 @@
-import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
@@ -6,8 +5,7 @@ from .extensions import mongo
 
 
 def init():
-    lock_file = os.path.join(os.getcwd(), 'installed.lock')
-    if os.path.exists(lock_file):
+    if mongo.db.users.find_one({'username': 'admin'}):
         return
     
     mongo.db.users.insert_one({
@@ -15,7 +13,7 @@ def init():
         'username': 'admin',
         'password': generate_password_hash('admin'),
         'is_admin': True,
-        'certificate': '社区超级管理员',
+        'renzheng': '社区超级管理员',
         'vip': 5,
         'coin': 9999,
         'avatar': '/static/images/avatar/1.jpg',
@@ -41,8 +39,6 @@ def init():
 
     mongo.db.options.insert_many(options)
 
-    with open(lock_file, 'w') as f:
-        f.write('1')
+    mongo.db.catalogs.insert_one({'name': '提问'})
 
-
-        
+    print(' * Initial data to MongoDB OK')

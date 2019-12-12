@@ -44,6 +44,7 @@ class R(dict):
 
     def put(self, key, value):
         self.__setitem__(key, value)
+        return self
 
     def get_status(self):
         return self.get('status')
