@@ -3,6 +3,8 @@ from wtforms import StringField, PasswordField, IntegerField
 from wtforms.validators import (DataRequired, Email, EqualTo, Length,
         InputRequired)
 
+from . import code_msg
+
 
 class RegisterForm(FlaskForm):
     '''注册表单类'''
@@ -35,3 +37,12 @@ class PostForm(FlaskForm):
     catalog_id = StringField(validators=[DataRequired('帖子种类不能为空')])
     reward = IntegerField(validators=[InputRequired('帖子悬赏不能不选')])
     vercode = StringField(validators=[InputRequired('验证码不能为空')])
+
+
+class ChangePassWordForm(FlaskForm):
+    nowpassword = StringField(validators=[DataRequired(
+            code_msg.NOW_PASSWORD_EMPTY.get_msg())])
+    password = PasswordField(validators=[Length(min=6, max=16, 
+            message=code_msg.PASSWORD_LENGTH_ERROR.get_msg())])
+    repassword = PasswordField(validators=[EqualTo('password', 
+            code_msg.PASSWORD_REPEAT_ERROR.get_msg())])

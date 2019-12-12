@@ -141,5 +141,5 @@ def jump_comment(comment_id):
         pn = comment_index / 10
         if pn == 0 or pn % 10 != 0:
             pn += 1
-    return redirect(url_for('index.post_detail', post_id=post_id, pn=pn
+    return redirect(url_for('bbs_index.post_detail', post_id=post_id, pn=pn
             ) + '#item-' + str(comment_id))

@@ -44,7 +44,7 @@
                 {% if item.is_cream %}
                   <span class="fly-jing">精</span>
                 {% endif %}
-                <a href="{{ url_for('index.post_detail', post_id=item._id) }}" class="jie-title"> {{ item.title }}</a>
+                <a href="{{ url_for('bbs_index.post_detail', post_id=item._id) }}" class="jie-title"> {{ item.title }}</a>
                 <i>{{ item.create_at|mongo_date_str }}</i>
                 <em class="layui-hide-xs">{{ item.get('view_count', 0) }}阅/{{ item.get('comment_count', 0) }}答</em>
               </li>
@@ -63,7 +63,7 @@
               <li>
                 <p>
                   <span>{{ item.create_at|mongo_date_str }}</span>
-                  在<a href="{{ url_for('index.jump_comment', comment_id=item._id) }}" target="_blank">{{ item_post.title or '(已删除)' }}</a>中回答：
+                  在<a href="{{ url_for('bbs_index.jump_comment', comment_id=item._id) }}" target="_blank">{{ item_post.title or '(已删除)' }}</a>中回答：
                 </p>
                 <div class="home-dacontent">
                   {{ item.content }}
