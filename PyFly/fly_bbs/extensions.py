@@ -1,5 +1,6 @@
 from flask_pymongo import PyMongo
 from flask_login import LoginManager
+from flask_uploads import UploadSet, configure_uploads, IMAGES, ALL
 from bson import ObjectId
 
 from .models import User
@@ -23,6 +24,9 @@ def user_load(user_id):
     user = mongo.db.users.find_one({'_id': ObjectId(user_id)})
     return User(user)
 
+# 实例化图片上传对象，extensions 参数代表允许扩展名
+upload_photos = UploadSet(extensions=ALL)
+
 
 def init_extensions(app):
     # 初始化 app 的时候，会调用 app.config 的 MONGO_URI 属性
@@ -34,3 +38,5 @@ def init_extensions(app):
     # 此方法的主要作用就是将 login_manager 本身赋值给 app.login_manager 属性
     # 以便 app 能够使用其登录登出等功能
     login_manager.init_app(app)
+    # 获取配置信息并存储在 app 上
+    configure_uploads(app, upload_photos)

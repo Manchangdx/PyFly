@@ -369,7 +369,7 @@ layui.define(['layer', 'laytpl', 'form', 'element', 'upload', 'util'], function(
       ,area: '300px'
       ,shade: 0.8
       ,shadeClose: true,
-        content: '<blockquote class="layui-elem-quote">“签到”可获得社区社区金币，数量随机</blockquote>'
+        content: '<blockquote class="layui-elem-quote">“签到”可获得社区金币，数量随机</blockquote>'
       // ,content: ['<div class="layui-text" style="padding: 20px;">'
       //   ,'<blockquote class="layui-elem-quote">“签到”可获得社区飞吻，规则如下</blockquote>'
       //   ,'<table class="layui-table">'

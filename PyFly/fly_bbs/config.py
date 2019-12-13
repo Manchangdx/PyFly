@@ -1,4 +1,5 @@
 import os
+from flask_uploads import ALL
 
 
 class DevConfig:
@@ -10,6 +11,12 @@ class DevConfig:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'shiyanlou')
     # 禁用 CSRF 认证
     WTF_CSRF_ENABLED = False
+    # 配置允许的扩展名
+    UPLOADED_PHOTOS_ALLOW = ALL
+    # 配置上传照片的目录
+    UPLOADED_PHOTOS_DEST = os.path.join(os.getcwd(), 'uploads/pics')
+    # 配置上传文件的目录
+    UPLOADED_FILES_DEST = os.path.join(os.getcwd(), 'uploads/files')
 
 
 class ProConfig(DevConfig):

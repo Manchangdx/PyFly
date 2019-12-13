@@ -1,11 +1,13 @@
 from flask import (Blueprint, render_template, flash, current_app, jsonify,
-        request, url_for)
+        request, url_for, redirect)
 from flask_login import login_required, current_user
+from flask_uploads import UploadNotAllowed
 from bson import ObjectId
 from datetime import datetime
+import random
 
-from ..extensions import mongo
-from .. import code_msg, models
+from ..extensions import mongo, upload_photos
+from .. import code_msg, models, db_utils
 
 
 api_view = Blueprint('api', __name__, url_prefix='/api')
@@ -221,6 +223,7 @@ def sign_status():
 @api_view.route('/sign', methods=['POST'])
 @login_required
 def user_sign():
+    '''用户签到功能'''
     date = datetime.utcnow().strftime('%Y-%m-%d')
     user = current_user.user
     doc = {
@@ -232,7 +235,8 @@ def user_sign():
     if sign_log:
         return jsonify(code_msg.REPEAT_SIGNED)
     # 随机奖励
-    interval = db_utils.get_option('sign_interval', {'val': '1-100'})['val'].split('-')
+    interval = db_utils.get_option('sign_interval', 
+            {'val': '1-100'})['val'].split('-')
     coin = random.randint(int(interval[0]), int(interval[1]))
     doc['coin'] = coin
     # print(coin)
@@ -241,3 +245,27 @@ def user_sign():
     # 更新金币数量
     mongo.db.users.update({'_id': user['_id']}, {"$inc": {'coin': coin}})
     return jsonify(models.R.ok(data={'signed': True, 'coin': coin}))
+
+
+@api_view.route('/upload/<string:name>')
+@api_view.route('/upload', methods=['POST'])
+def upload(name=None):
+    if request.method == 'POST':
+        if not current_user.is_authenticated:
+            return jsonify(code_msg.USER_UN_LOGIN)
+        # ‘smfile’ 对应的值就是我们上传的文件
+        file = request.files['smfile']
+        if not file:
+            return jsonify(code_msg.FILE_EMPTY)
+        try:
+            filename = upload_photos.save(file)
+        except UploadNotAllowed:
+            return jsonify(code_msg.UPLOAD_UN_ALLOWED)
+        # 因为存储在帖子内容里，所以用个相对路径，方便数据转移
+        file_url = '/api/upload/' + filename
+        result = models.R(data={'url': file_url}).put('code', 0)
+        return jsonify(result)
+    # 访问上传文件时
+    if not name:
+        abort(404)
+    return redirect(upload_photos.url(name))
