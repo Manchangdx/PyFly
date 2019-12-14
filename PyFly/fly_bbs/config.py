@@ -26,6 +26,8 @@ class DevConfig:
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_SUBJECT_PREFIX = '[PyFly]-'
 
+    WHOOSH_PATH = os.path.join(os.getcwd(), 'whoosh_indexes')
+
 
 class ProConfig(DevConfig):
     '''生产环境配置'''

@@ -4,9 +4,12 @@ from flask_uploads import UploadSet, configure_uploads, IMAGES, ALL
 from flask_admin import Admin
 from flask_mail import Mail
 from bson import ObjectId
+from whoosh.fields import *
+from jieba.analyse import ChineseAnalyzer
 
 from .models import User
 from .admin import admin_view
+from .plugins import WhooshSearcher
 
 
 mongo = PyMongo()
@@ -34,6 +37,7 @@ admin = Admin(name='PyFly 后台管理系统')
 
 mail = Mail()
 
+whoosh_searcher = WhooshSearcher()
 
 def init_extensions(app):
     # 初始化 app 的时候，会调用 app.config 的 MONGO_URI 属性
@@ -49,6 +53,7 @@ def init_extensions(app):
     configure_uploads(app, upload_photos)
     admin.init_app(app)
     mail.init_app(app)
+    whoosh_searcher.init_app(app)
     with app.app_context():
         admin.add_view(admin_view.OptionsModelView(mongo.db['options'], 
                 '系统设置'))
@@ -67,3 +72,12 @@ def init_extensions(app):
                 '底部链接', category='推广管理'))
         admin.add_view(admin_view.AdsModelView(mongo.db['ads'], '广告管理', 
                 category='推广管理'))
+        # 使用 jieba 中文分词
+        chinese_analyzer = ChineseAnalyzer()
+        # 建立索引模式对象
+        post_schema = Schema(obj_id=ID(unique=True, stored=True),
+                title=TEXT(stored=True, analyzer=chinese_analyzer),
+                content=TEXT(stored=True, analyzer=chinese_analyzer),
+                create_at=DATETIME(stored=True), catalog_id=ID(stored=True),
+                user_id=ID(stored=True))
+        whoosh_searcher.add_index('posts', post_schema)
