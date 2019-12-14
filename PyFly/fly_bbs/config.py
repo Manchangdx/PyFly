@@ -18,6 +18,14 @@ class DevConfig:
     # 配置上传文件的目录
     UPLOADED_FILES_DEST = os.path.join(os.getcwd(), 'uploads/files')
 
+    # 邮箱相关配置
+    # SERVER 和 PORT 是需要网上查的，各家的邮箱都不同
+    MAIL_SERVER = 'smtp.qq.com'
+    MAIL_PORT = 25
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_SUBJECT_PREFIX = '[PyFly]-'
+
 
 class ProConfig(DevConfig):
     '''生产环境配置'''

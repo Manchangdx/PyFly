@@ -2,6 +2,7 @@ from flask_pymongo import PyMongo
 from flask_login import LoginManager
 from flask_uploads import UploadSet, configure_uploads, IMAGES, ALL
 from flask_admin import Admin
+from flask_mail import Mail
 from bson import ObjectId
 
 from .models import User
@@ -31,6 +32,8 @@ upload_photos = UploadSet(extensions=ALL)
 
 admin = Admin(name='PyFly 后台管理系统')
 
+mail = Mail()
+
 
 def init_extensions(app):
     # 初始化 app 的时候，会调用 app.config 的 MONGO_URI 属性
@@ -45,6 +48,7 @@ def init_extensions(app):
     # 获取配置信息并存储在 app 上
     configure_uploads(app, upload_photos)
     admin.init_app(app)
+    mail.init_app(app)
     with app.app_context():
         admin.add_view(admin_view.OptionsModelView(mongo.db['options'], 
                 '系统设置'))
