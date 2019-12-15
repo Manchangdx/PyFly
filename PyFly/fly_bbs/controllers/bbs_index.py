@@ -173,11 +173,23 @@ def post_search(pn=1, size=10):
     if keyword is None:
         return render_template('search/list.html', title='搜索',
                 message='搜索关键字不能为空!')
+    whoosh_searcher.clear('posts')
+    writer = whoosh_searcher.get_writer('posts')
+    for item in mongo.db['posts'].find({},
+            ['_id', 'title', 'content', 'create_at', 'user_id', 'catalog_id']):
+        item['obj_id'] = str(item['_id'])
+        item['user_id'] = str(item['user_id'])
+        item['catalog_id'] = str(item['catalog_id'])
+        item.pop('_id')
+        writer.add_document(**item)
+    # 保存修改
+    writer.commit()
     with whoosh_searcher.get_searcher('posts') as searcher:
         # 解析查询字符串
         parser = qparser.MultifieldParser(['title', 'content'], 
                 whoosh_searcher.get_index('posts').schema)
         q = parser.parse(keyword)
+        print('q:', q)
         # 搜索得到结果
         result = searcher.search_page(q, pagenum=pn, pagelen=size,
                 sortedby=sorting.ScoreFacet())
